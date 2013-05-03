@@ -12,8 +12,10 @@ public class MakePrefab : MonoBehaviour {
 		foreach (GameObject go in selectedObjects){
 			string name = go.name;
 			string localPath = "Assets/"+name+".prefab";
-			if(AssetDatabase.LoadAssetAtPath(localPath, typeof(GameObject))){
-				Debug.Log("Don't create");
+			if(AssetDatabase.LoadAssetAtPath(localPath, typeof(GameObject))){ 
+				if (EditorUtility.DisplayDialog("Initial prefab found.", "Would you like to replace this prefab?", "Sure", "Nope")){
+					createNew(go, localPath);
+				}
 			}else{	
 				createNew(go, localPath);
 			}
@@ -22,8 +24,12 @@ public class MakePrefab : MonoBehaviour {
 		AssetDatabase.Refresh();
 	}
 	
-	static void createNew(GameObject go, string localPath){		
+	static GameObject createNew(GameObject go, string localPath){		
 		Object prefab = PrefabUtility.CreateEmptyPrefab(localPath);
 		PrefabUtility.ReplacePrefab(go, prefab);
+		
+		DestroyImmediate(go);
+		
+		return PrefabUtility.InstantiatePrefab(prefab) as GameObject;
 	}
 }
